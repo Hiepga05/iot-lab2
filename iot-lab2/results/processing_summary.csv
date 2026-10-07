@@ -1,0 +1,3 @@
+device_id,raw_rows,processed_rows,duplicate_timestamps,temperature_missing_before,temperature_outliers,humidity_missing_before,humidity_outliers,distance_cm_missing_before,distance_cm_outliers,light_lux_missing_before,light_lux_outliers
+esp32-01,72,135,0,63,0,69,0,63,0,63,0
+test-device,2,1,0,0,0,0,0,0,0,0,0

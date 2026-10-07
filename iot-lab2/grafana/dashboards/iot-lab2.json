@@ -1,0 +1,126 @@
+{
+  "annotations": { "list": [] },
+  "editable": true,
+  "fiscalYearStartMonth": 0,
+  "graphTooltip": 1,
+  "id": null,
+  "links": [],
+  "liveNow": true,
+  "panels": [
+    {
+      "datasource": { "type": "influxdb", "uid": "influxdb-iot" },
+      "fieldConfig": {
+        "defaults": { "color": { "mode": "palette-classic" }, "unit": "short" },
+        "overrides": []
+      },
+      "gridPos": { "h": 5, "w": 24, "x": 0, "y": 0 },
+      "id": 1,
+      "options": {
+        "colorMode": "value",
+        "graphMode": "area",
+        "justifyMode": "auto",
+        "orientation": "horizontal",
+        "reduceOptions": { "calcs": ["lastNotNull"], "fields": "", "values": false },
+        "textMode": "auto",
+        "wideLayout": true
+      },
+      "targets": [
+        {
+          "query": "from(bucket: \"iot_bucket\") |> range(start: v.timeRangeStart, stop: v.timeRangeStop) |> filter(fn: (r) => r._measurement == \"ingest_metrics\" and (r._field == \"valid_total\" or r._field == \"rejected_total\" or r._field == \"duplicate_total\" or r._field == \"lost_total\")) |> last()",
+          "refId": "A"
+        }
+      ],
+      "title": "Chất lượng dữ liệu thu nhận",
+      "type": "stat"
+    },
+    {
+      "datasource": { "type": "influxdb", "uid": "influxdb-iot" },
+      "fieldConfig": {
+        "defaults": { "color": { "mode": "palette-classic" }, "custom": { "drawStyle": "line", "fillOpacity": 12, "lineWidth": 2, "showPoints": "auto", "spanNulls": true }, "unit": "celsius" },
+        "overrides": []
+      },
+      "gridPos": { "h": 8, "w": 12, "x": 0, "y": 5 },
+      "id": 2,
+      "options": { "legend": { "calcs": ["lastNotNull", "mean"], "displayMode": "table", "placement": "bottom" }, "tooltip": { "mode": "multi", "sort": "none" } },
+      "targets": [
+        { "query": "from(bucket: \"iot_bucket\") |> range(start: v.timeRangeStart, stop: v.timeRangeStop) |> filter(fn: (r) => r._measurement == \"sensor_raw\" and r._field == \"temperature\") |> aggregateWindow(every: v.windowPeriod, fn: mean, createEmpty: false) |> set(key: \"series\", value: \"raw\")", "refId": "A" },
+        { "query": "from(bucket: \"iot_bucket\") |> range(start: v.timeRangeStart, stop: v.timeRangeStop) |> filter(fn: (r) => r._measurement == \"sensor_processed\" and (r._field == \"temperature\" or r._field == \"temperature_rolling_mean\")) |> aggregateWindow(every: v.windowPeriod, fn: mean, createEmpty: false)", "refId": "B" }
+      ],
+      "title": "Nhiệt độ: raw và processed",
+      "type": "timeseries"
+    },
+    {
+      "datasource": { "type": "influxdb", "uid": "influxdb-iot" },
+      "fieldConfig": {
+        "defaults": { "color": { "mode": "palette-classic" }, "custom": { "drawStyle": "line", "fillOpacity": 12, "lineWidth": 2, "showPoints": "auto", "spanNulls": true }, "unit": "percent" },
+        "overrides": []
+      },
+      "gridPos": { "h": 8, "w": 12, "x": 12, "y": 5 },
+      "id": 3,
+      "options": { "legend": { "calcs": ["lastNotNull", "mean"], "displayMode": "table", "placement": "bottom" }, "tooltip": { "mode": "multi", "sort": "none" } },
+      "targets": [
+        { "query": "from(bucket: \"iot_bucket\") |> range(start: v.timeRangeStart, stop: v.timeRangeStop) |> filter(fn: (r) => r._measurement == \"sensor_raw\" and r._field == \"humidity\") |> aggregateWindow(every: v.windowPeriod, fn: mean, createEmpty: false)", "refId": "A" },
+        { "query": "from(bucket: \"iot_bucket\") |> range(start: v.timeRangeStart, stop: v.timeRangeStop) |> filter(fn: (r) => r._measurement == \"sensor_processed\" and r._field == \"humidity_rolling_mean\") |> aggregateWindow(every: v.windowPeriod, fn: mean, createEmpty: false)", "refId": "B" }
+      ],
+      "title": "Độ ẩm: raw và rolling mean",
+      "type": "timeseries"
+    },
+    {
+      "datasource": { "type": "influxdb", "uid": "influxdb-iot" },
+      "fieldConfig": {
+        "defaults": { "color": { "mode": "continuous-GrYlRd" }, "custom": { "drawStyle": "line", "fillOpacity": 20, "lineWidth": 2, "showPoints": "auto", "spanNulls": true }, "unit": "lengthcm" },
+        "overrides": []
+      },
+      "gridPos": { "h": 8, "w": 8, "x": 0, "y": 13 },
+      "id": 4,
+      "options": { "legend": { "calcs": ["lastNotNull"], "displayMode": "list", "placement": "bottom" }, "tooltip": { "mode": "single", "sort": "none" } },
+      "targets": [
+        { "query": "from(bucket: \"iot_bucket\") |> range(start: v.timeRangeStart, stop: v.timeRangeStop) |> filter(fn: (r) => r._measurement == \"sensor_raw\" and r._field == \"distance_cm\") |> aggregateWindow(every: v.windowPeriod, fn: mean, createEmpty: false)", "refId": "A" }
+      ],
+      "title": "Khoảng cách HC-SR04",
+      "type": "timeseries"
+    },
+    {
+      "datasource": { "type": "influxdb", "uid": "influxdb-iot" },
+      "fieldConfig": {
+        "defaults": { "color": { "mode": "continuous-BlYlRd" }, "custom": { "drawStyle": "line", "fillOpacity": 20, "lineWidth": 2, "showPoints": "auto", "spanNulls": true }, "unit": "lux" },
+        "overrides": []
+      },
+      "gridPos": { "h": 8, "w": 8, "x": 8, "y": 13 },
+      "id": 5,
+      "options": { "legend": { "calcs": ["lastNotNull"], "displayMode": "list", "placement": "bottom" }, "tooltip": { "mode": "single", "sort": "none" } },
+      "targets": [
+        { "query": "from(bucket: \"iot_bucket\") |> range(start: v.timeRangeStart, stop: v.timeRangeStop) |> filter(fn: (r) => r._measurement == \"sensor_raw\" and r._field == \"light_lux\") |> aggregateWindow(every: v.windowPeriod, fn: mean, createEmpty: false)", "refId": "A" }
+      ],
+      "title": "Cường độ ánh sáng",
+      "type": "timeseries"
+    },
+    {
+      "datasource": { "type": "influxdb", "uid": "influxdb-iot" },
+      "fieldConfig": {
+        "defaults": { "color": { "mode": "palette-classic" }, "custom": { "drawStyle": "line", "fillOpacity": 15, "lineWidth": 2, "showPoints": "auto", "spanNulls": true }, "unit": "ms" },
+        "overrides": []
+      },
+      "gridPos": { "h": 8, "w": 8, "x": 16, "y": 13 },
+      "id": 6,
+      "options": { "legend": { "calcs": ["lastNotNull", "mean", "max"], "displayMode": "table", "placement": "bottom" }, "tooltip": { "mode": "multi", "sort": "none" } },
+      "targets": [
+        { "query": "from(bucket: \"iot_bucket\") |> range(start: v.timeRangeStart, stop: v.timeRangeStop) |> filter(fn: (r) => r._measurement == \"sensor_raw\" and r._field == \"network_delay_ms\") |> aggregateWindow(every: v.windowPeriod, fn: mean, createEmpty: false)", "refId": "A" },
+        { "query": "from(bucket: \"iot_bucket\") |> range(start: v.timeRangeStart, stop: v.timeRangeStop) |> filter(fn: (r) => r._measurement == \"ingest_metrics\" and (r._field == \"database_write_ms\" or r._field == \"rtt_ms\")) |> aggregateWindow(every: v.windowPeriod, fn: mean, createEmpty: false)", "refId": "B" }
+      ],
+      "title": "Độ trễ mạng, ghi DB và RTT",
+      "type": "timeseries"
+    }
+  ],
+  "refresh": "5s",
+  "schemaVersion": 39,
+  "tags": ["iot", "mqtt", "influxdb", "lab2"],
+  "templating": { "list": [] },
+  "time": { "from": "now-30m", "to": "now" },
+  "timepicker": {},
+  "timezone": "browser",
+  "title": "IoT Lab 2 - ESP32 MQTT",
+  "uid": "iot-lab2",
+  "version": 1,
+  "weekStart": ""
+}
